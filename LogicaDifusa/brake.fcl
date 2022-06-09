@@ -1,0 +1,42 @@
+FUNCTION_BLOCK break
+
+VAR_INPUT
+	Presion : REAL;
+	Velocidad : REAL;
+END_VAR
+
+VAR_OUTPUT
+	Freno : REAL;
+END_VAR
+
+FUZZIFY Presion
+	TERM baja := (0,1) (50,0);
+	TERM media := (30,0) (50,1) (70,0);
+	TERM alta := (50,0) (100,1);
+END_FUZZIFY
+
+FUZZIFY Velocidad
+	TERM baja := (0,1) (60,0);
+    TERM media := (20,0) (50,1) (80,0);
+    TERM alta := (40,0) (100,1);
+END_FUZZIFY
+
+DEFUZZIFY Freno
+	TERM apertar := (0,0) (100,1);
+	TERM liberar := (0,1) (100,0);
+	METHOD : COG;
+	DEFAULT := 0;
+END_DEFUZZIFY
+
+RULEBLOCK No1
+	AND : MIN;
+	ACT : MIN;
+	ACCU : MAX;
+
+	RULE 1 : IF Presion IS media THEN Freno IS apertar;
+	RULE 2 : IF Presion IS alta AND Velocidad IS alta THEN Freno IS apertar;
+	RULE 3 : IF Presion IS alta AND Velocidad IS baja THEN Freno IS liberar;
+	RULE 4 : IF Presion IS baja THEN Freno IS liberar;
+END_RULEBLOCK
+
+END_FUNCTION_BLOCK
